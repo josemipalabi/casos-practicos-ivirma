@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Casos Prácticos — Data Business Analyst — Miguel Palazón</title>
+
+<!-- Tipografías (sobrias, editoriales) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- Syntax highlighting para SQL (Prism.js) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+
+<style>
+/* =========================================================================
+   PALETA Y VARIABLES
+   ========================================================================= */
+:root {
+  --ink:        #1a1a1a;       /* negro suave para texto */
+  --ink-soft:   #4a4a4a;       /* gris medio para secundarios */
+  --ink-faint:  #8a8a8a;       /* gris claro para meta */
+  --paper:      #fafaf7;       /* crema editorial */
+  --paper-pure: #ffffff;
+  --rule:       #e5e3dd;       /* línea fina */
+  --accent:     #1d3557;       /* navy sobrio */
+  --accent-soft:#e8eef5;       /* fondo accent muy suave */
+  --highlight:  #fff8d8;       /* highlight callout */
+  --code-bg:    #f5f3ec;
+  --max-w:      720px;
+  --sidebar-w:  260px;
+}
+
+/* =========================================================================
+   RESET Y BASE
+   ========================================================================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+
+body {
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================================
+   LAYOUT GENERAL
+   ========================================================================= */
+.layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+/* ----- SIDEBAR ----- */
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  padding: 3rem 2rem 2rem;
+  border-right: 1px solid var(--rule);
+  background: var(--paper-pure);
+  overflow-y: auto;
+}
+
+.sidebar-brand {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-meta {
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2.5rem;
+  line-height: 1.5;
+}
+
+.sidebar-section-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.sidebar-nav {
+  list-style: none;
+  margin-bottom: 2rem;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.85rem;
+}
+
+.sidebar-nav a {
+  display: block;
+  text-decoration: none;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  line-height: 1.4;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--rule);
+  transition: all 0.15s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.sidebar-nav .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.1rem;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-footer {
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  line-height: 1.6;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.sidebar-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--ink-faint);
+}
+
+/* ----- MAIN ----- */
+main {
+  padding: 4rem 4rem 6rem;
+  max-width: calc(var(--max-w) + 8rem);
+}
+
+/* =========================================================================
+   PORTADA
+   ========================================================================= */
+.cover {
+  margin-bottom: 5rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.cover-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+}
+
+.cover h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 2.6rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 1.2rem;
+}
+
+.cover-deck {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  max-width: 580px;
+}
+
+.cover-meta {
+  display: flex;
+  gap: 2.5rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.cover-meta strong {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-bottom: 0.3rem;
+}
+
+/* =========================================================================
+   PREGUNTAS (SECCIONES)
+   ========================================================================= */
+.pregunta {
+  margin-bottom: 5rem;
+  scroll-margin-top: 2rem;
+}
+
+.pregunta-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--ink-faint);
+  margin-bottom: 0.8rem;
+}
+
+.pregunta h2 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+}
+
+.pregunta-prompt {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.02rem;
+  color: var(--ink-soft);
+  line-height: 1.55;
+  padding: 1.2rem 1.5rem;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  margin-bottom: 2.5rem;
+}
+
+/* ----- TIPOGRAFÍA DE CONTENIDO ----- */
+.pregunta p {
+  margin-bottom: 1.2rem;
+  max-width: var(--max-w);
+}
+
+.pregunta h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: 1.25rem;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.pregunta h4 {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin-top: 1.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.pregunta strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pregunta em {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+}
+
+.pregunta ul, .pregunta ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.4rem;
+  max-width: var(--max-w);
+}
+
+.pregunta li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.pregunta ul li::marker {
+  color: var(--ink-faint);
+}
+
+/* ----- DIVISOR INTERNO PARA "DOS CASOS" EN P2 ----- */
+.case-divider {
+  border: none;
+  height: 1px;
+  background: var(--rule);
+  margin: 3rem 0;
+  max-width: var(--max-w);
+}
+
+/* =========================================================================
+   ESTIMACIÓN GLOBAL EN P1
+   ========================================================================= */
+.estimacion-box {
+  margin: 2rem 0;
+  padding: 1.5rem 1.8rem;
+  background: var(--paper-pure);
+  border: 1px solid var(--rule);
+  max-width: var(--max-w);
+}
+
+.estimacion-box .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+
+.estimacion-box .value {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+/* =========================================================================
+   DIAGRAMA DE FASES (TIMELINE SVG, P1)
+   ========================================================================= */
+.timeline-wrap {
+  margin: 2.5rem 0 1rem;
+  max-width: var(--max-w);
+}
+
+.timeline-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.timeline-caption {
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  margin-top: 0.6rem;
+  font-style: italic;
+  font-family: 'Fraunces', serif;
+}
+
+/* =========================================================================
+   BLOQUE DE CÓDIGO SQL
+   ========================================================================= */
+pre {
+  background: var(--code-bg) !important;
+  border: 1px solid var(--rule);
+  padding: 1.4rem 1.6rem !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  line-height: 1.55 !important;
+  margin: 1.5rem 0 !important;
+  max-width: var(--max-w);
+  overflow-x: auto;
+  border-radius: 0 !important;
+  text-shadow: none !important;
+}
+
+pre code,
+code[class*="language-"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  text-shadow: none !important;
+  background: transparent !important;
+  color: var(--ink) !important;
+}
+
+/* Tokens Prism — paleta sobria coherente con el resto */
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: #8a8a8a !important; font-style: italic; }
+.token.keyword, .token.boolean { color: #1d3557 !important; font-weight: 600; }
+.token.string, .token.char { color: #5d4037 !important; }
+.token.number, .token.operator { color: #1a1a1a !important; }
+.token.function { color: #1d3557 !important; }
+.token.punctuation { color: #4a4a4a !important; }
+
+/* Inline code */
+.pregunta p code,
+.pregunta li code,
+.pregunta h4 code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 2px;
+  color: var(--ink);
+}
+
+/* =========================================================================
+   PLACEHOLDER DIAGRAMA P3 (DRAW.IO)
+   ========================================================================= */
+.diagram-placeholder {
+  margin: 2rem 0;
+  padding: 3rem 2rem;
+  border: 2px dashed var(--rule);
+  background: var(--paper-pure);
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+  max-width: var(--max-w);
+}
+
+.diagram-placeholder strong {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+/* Reemplazar este bloque por: <img src="diagrama.png" alt="Modelo de datos"> */
+.diagram-placeholder img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* =========================================================================
+   CAPTURAS DEL DASH (P4)
+   ========================================================================= */
+.capture {
+  margin: 2.5rem 0;
+  max-width: var(--max-w);
+}
+
+.capture img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--rule);
+  background: var(--paper-pure);
+}
+
+.capture figcaption {
+  margin-top: 0.7rem;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.capture figcaption strong {
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-faint);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+/* =========================================================================
+   ENLACE DE DESCARGA (P4)
+   ========================================================================= */
+.download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.7rem 1.1rem;
+  background: var(--paper-pure);
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+}
+
+.download-link:hover {
+  background: var(--ink);
+  color: var(--paper-pure);
+}
+
+.download-link::before {
+  content: "↓";
+  font-size: 1rem;
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+    height: auto;
+    padding: 2rem 1.5rem;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  main {
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  .cover h1 {
+    font-size: 2rem;
+  }
+  .pregunta h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* =========================================================================
+   PRINT STYLES (para PDF)
+   ========================================================================= */
+@media print {
+  .sidebar {
+    display: none;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  main {
+    padding: 1.5rem 2rem;
+    max-width: 100%;
+  }
+  .pregunta {
+    page-break-inside: avoid;
+    margin-bottom: 2.5rem;
+  }
+  body {
+    background: white;
+    font-size: 10.5pt;
+  }
+  .cover h1 { font-size: 22pt; }
+  .pregunta h2 { font-size: 16pt; }
+  pre[class*="language-"] {
+    font-size: 8pt !important;
+    page-break-inside: avoid;
+  }
+  .capture {
+    page-break-inside: avoid;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ============================================================
+     SIDEBAR
+     ============================================================ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">Miguel Palazón</div>
+  <div class="sidebar-meta">
+    Casos Prácticos<br>
+    Data Business Analyst<br>
+    IVI&nbsp;RMA Global
+  </div>
+
+  <div class="sidebar-section-label">Contenido</div>
+  <ul class="sidebar-nav">
+    <li><a href="#p1">
+      <span class="num">01</span>Integración de una nueva empresa
+    </a></li>
+    <li><a href="#p2">
+      <span class="num">02</span>Bases de datos inconsistentes
+    </a></li>
+    <li><a href="#p3">
+      <span class="num">03</span>Sentencia SQL multi-tabla
+    </a></li>
+    <li><a href="#p4">
+      <span class="num">04</span>Visualización de datos
+    </a></li>
+  </ul>
+
+  <div class="sidebar-footer">
+    Mayo&nbsp;2026<br>
+    <a href="mailto:josemipalabi@gmail.com">josemipalabi@gmail.com</a>
+  </div>
+</aside>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main>
+
+  <!-- PORTADA -->
+  <header class="cover">
+    <div class="cover-eyebrow">Proceso de selección · IVI&nbsp;RMA Global</div>
+    <h1>Casos Prácticos IVIRMA Global <br>Data Business Analyst</h1>
+    <p class="cover-deck">
+      Respuestas a las cuatro cuestiones técnicas planteadas.
+    </p>
+    <div class="cover-meta">
+      <div>
+        <strong>Candidato</strong>
+        José Miguel Palazón Caballero
+      </div>
+      <div>
+        <strong>Fecha</strong>
+        Mayo 2026
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ====================================================================
+       PREGUNTA 1
+       ==================================================================== -->
+  <section class="pregunta" id="p1">
+    <div class="pregunta-num">Pregunta 01</div>
+    <h2>Integración de una nueva empresa en la base de datos</h2>
+
+    <div class="pregunta-prompt">
+      Imagínate que IVIRMA tiene que integrar una nueva empresa dentro de su base de datos.
+      Para ello, necesitamos realizar diferentes pasos para que la información sea coherente
+      con la que ya tenemos y pueda ser explotable en conjunto... ¿Qué pasos realizarías y en
+      qué orden? ¿Serías capaz de también estimar las tareas?
+    </div>
+
+    <p>
+      La dificultad en la integración radica en alinear dos modelos de negocio esencialmente
+      diferentes aspirando a preservar cierta consistencia para el reporting corporativo. 
+      En sanidad esto suma una capa adicional: RGPD reforzado para datos de categoría especial, 
+      además de restricciones en las transferencias de datos internacionales si la entidad
+      entrante opera fuera del Espacio Económico Europeo (IVIRMA tiene fuerte presencia en EEUU por
+      lo que es especialmente relevante).
+    </p>
+
+    <p>
+      Por tanto, planteo la integración en cinco fases; importante destacar que las duraciones son 
+      rangos con supuestos explícitos pero altamente flexibles dependiendo del proyecto.
+    </p>
+
+    <!-- Timeline SVG -->
+    <div class="timeline-wrap">
+      <svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Timeline de las 5 fases del proyecto">
+        <defs>
+          <style>
+            .ph-bar { fill: #1d3557; }
+            .ph-bar-paralela { fill: #1d3557; opacity: 0.5; }
+            .ph-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; fill: #1a1a1a; font-weight: 500; }
+            .ph-dur { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; fill: #ffffff; font-weight: 500; }
+            .axis { stroke: #cfcdc6; stroke-width: 1; }
+            .axis-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #8a8a8a; }
+            .gridline { stroke: #f0eee7; stroke-width: 1; }
+          </style>
+        </defs>
+
+        <!-- Eje horizontal con semanas -->
+        <line class="axis" x1="40" y1="248" x2="700" y2="248"/>
+
+        <!-- Gridlines verticales cada 2 semanas -->
+        <line class="gridline" x1="135" y1="40" x2="135" y2="248"/>
+        <line class="gridline" x1="230" y1="40" x2="230" y2="248"/>
+        <line class="gridline" x1="325" y1="40" x2="325" y2="248"/>
+        <line class="gridline" x1="420" y1="40" x2="420" y2="248"/>
+        <line class="gridline" x1="515" y1="40" x2="515" y2="248"/>
+        <line class="gridline" x1="610" y1="40" x2="610" y2="248"/>
+        <line class="gridline" x1="700" y1="40" x2="700" y2="248"/>
+
+        <!-- Etiquetas eje -->
+        <text class="axis-label" x="40" y="266" text-anchor="middle">0</text>
+        <text class="axis-label" x="135" y="266" text-anchor="middle">2</text>
+        <text class="axis-label" x="230" y="266" text-anchor="middle">4</text>
+        <text class="axis-label" x="325" y="266" text-anchor="middle">6</text>
+        <text class="axis-label" x="420" y="266" text-anchor="middle">8</text>
+        <text class="axis-label" x="515" y="266" text-anchor="middle">10</text>
+        <text class="axis-label" x="610" y="266" text-anchor="middle">12</text>
+        <text class="axis-label" x="700" y="266" text-anchor="middle">14 sem.</text>
+
+        <!-- Fase 0: Discovery (sem 0-2) -->
+        <text class="ph-label" x="40" y="54">Fase 0 · Discovery</text>
+        <rect class="ph-bar" x="40" y="60" width="95" height="22"/>
+        <text class="ph-dur" x="87" y="75" text-anchor="middle">1–2 sem</text>
+
+        <!-- Fase 1: Diseño (sem 2-4) -->
+        <text class="ph-label" x="135" y="96">Fase 1 · Diseño</text>
+        <rect class="ph-bar" x="135" y="102" width="95" height="22"/>
+        <text class="ph-dur" x="182" y="117" text-anchor="middle">1–2 sem</text>
+
+        <!-- Fase 2: Pipeline (sem 4-12, larga) -->
+        <text class="ph-label" x="230" y="138">Fase 2 · Desarrollo del pipeline de mapeo</text>
+        <rect class="ph-bar" x="230" y="144" width="380" height="22"/>
+        <text class="ph-dur" x="420" y="159" text-anchor="middle">4–8 sem</text>
+
+        <!-- Fase 3: Harmonización (paralela a 2) -->
+        <text class="ph-label" x="280" y="180">Fase 3 · Harmonización semántica (paralela a Fase 2)</text>
+        <rect class="ph-bar-paralela" x="280" y="186" width="140" height="22"/>
+        <text class="ph-dur" x="350" y="201" text-anchor="middle" fill="#ffffff">2–3 sem</text>
+
+        <!-- Fase 4: Validación (sem 12-14) -->
+        <text class="ph-label" x="610" y="222" text-anchor="end" dx="90">Fase 4 · Prueba y validación</text>
+        <rect class="ph-bar" x="610" y="228" width="90" height="22"/>
+        <text class="ph-dur" x="655" y="243" text-anchor="middle">2–3 sem</text>
+      </svg>
+      <p class="timeline-caption">
+        Distribución temporal estimada. La Fase 3 corre en paralelo a la 2; total
+        agregado 8&ndash;14 semanas según limpieza de la fuente y volumen de datos.
+      </p>
+    </div>
+
+
+    <h3>Fase 0: Discovery (1-2 semanas)</h3>
+    <p>Reuniones con el equipo de la entidad entrante para entender:</p>
+    <ul>
+      <li>
+        Qué fuentes hay y sobre qué tecnología corren. Esto es clave: en mi experiencia
+        en Shift Technology, el pipeline estaba en C# con ejecuciones diarias de ~2h de duración
+        sobre batches, una arquitectura particular que puede diferir enormemente de la usada en IVIRMA. 
+        Cada empresa tiene su realidad técnica y el discovery sirve precisamente para no proyectar suposiciones.
+      </li>
+      <li>Volumen actual y profundidad histórica.</li>
+      <li>
+        Qué datos son imprescindibles, cuáles deseables y cuáles prescindibles, argumentando
+        cada decisión con negocio.
+      </li>
+      <li>Restricciones regulatorias específicas del sector y de la jurisdicción.</li>
+      <li>
+        En mi experiencia suele ser preferible pedir un <strong>subset representativo</strong> para validación temprana,
+        antes de tener el pipeline completo.
+      </li>
+    </ul>
+
+    <h3>Fase 1: Diseño de la integración (1-2 semanas)</h3>
+    <p>Tres decisiones a cerrar antes de tocar código:</p>
+    <ol>
+      <li>
+        <strong>Mapeo de origen a modelo interno corporativo, nunca al revés.</strong>
+        El modelo interno es el <em>source of truth</em> y la fuente entrante se
+        adapta. Es lo que vi aplicar en Shift y considero que es el patrón correcto:
+        evita que cada nueva integración degrade el modelo común.
+      </li>
+      <li>
+        <strong>Estrategia de identificadores y entity resolution</strong>:
+        cómo se tratan pacientes, profesionales o clínicas que puedan existir ya
+        en el modelo central (lo desarrollo en la pregunta 2).
+      </li>
+      <li>
+        <strong>Arquitectura del pipeline</strong>: capa raw / staging / modelo
+        de negocio; una arquitectura <em>medallion</em> (bronze / silver / gold)
+        encaja bien aquí, semejante a la empleada en mis últimas prácticas.
+      </li>
+    </ol>
+
+    <h3>Fase 2: Desarrollo del pipeline de mapeo (4-8 semanas)</h3>
+    <p>
+      Esta es, en mi experiencia, la fase más larga. En Shift vi que el mapeo a
+      modelo interno y la creación de <strong>reglas y escenarios específicos de la línea de negocio
+      </strong> (en su caso para detección de fraude en siniestros)
+      era el grueso del trabajo, equivalente a 1-3 meses de un Data Scientist a
+      tiempo completo. La ingestión es relativamente estándar; lo costoso es el
+      alineamiento semántico.
+    </p>
+    <p>Sub-tareas:</p>
+    <ul>
+      <li>Ingestión (batches o stream).</li>
+      <li>Transformaciones de mapeo en staging.</li>
+      <li>Tests de calidad por capa.</li>
+      <li>
+        Documentación viva del mapeo: un campo no documentado es deuda futura el
+        día que la persona que lo escribió ya no esté.
+      </li>
+    </ul>
+
+    <h3>Fase 3: Harmonización semántica y entity resolution (paralelo a Fase 2, 2-3 semanas)</h3>
+    <p>
+      Catálogos comunes (tipos de tratamiento, especialidades, unidades), unificación
+      de divisas y zonas horarias, y resolución de duplicados en entidades. En
+      sanidad, un falso positivo en pacientes es crítico ya se mezclarían
+      historiales clínicos, así que el umbral debe ser conservador y siempre
+      con revisión humana en los casos dudosos.
+    </p>
+
+    <h3>Fase 4: Periodo de prueba y validación (2-3 semanas)</h3>
+    <p>
+      Ejecución del pipeline contra datos reales con monitorización activa: volumen y tasas de fallo. 
+      Reconciliación de los KPIs corporativos contra los reportes que la empresa entrante ya producía;
+      si un KPI sale distinto, hay que entender por qué antes de dar nada por bueno (¿definición distinta?,
+      ¿error de mapeo?, ¿error original suyo?...). Autorización explícita de los stakeholders
+      antes del cambio definitivo.
+    </p>
+
+    <h3>Estimación global</h3>
+    <div class="estimacion-box">
+      <div class="label">Duración total estimada</div>
+      <div class="value">8 — 14 semanas</div>
+      <p style="margin: 0; font-size: 0.9rem; color: var(--ink-soft);">
+        Dependiendo de la limpieza de la fuente, el volumen y la madurez del equipo
+        entrante. El mayor riesgo no suele ser técnico sino de alineamiento semántico
+        y validación con negocio: por eso reservo una proporción significativa del
+        tiempo a las fases 0, 3 y 4.
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ====================================================================
+       PREGUNTA 2
+       ==================================================================== -->
+  <section class="pregunta" id="p2">
+    <div class="pregunta-num">Pregunta 02</div>
+    <h2>Bases de datos inconsistentes y datos sucios</h2>
+
+    <div class="pregunta-prompt">
+      ¿Has tenido que lidiar alguna vez que una base de datos inconsistente con errores, con
+tipos de campo que no cuadran y con datos mal introducidos? Si es así, ¿Cómo lo has
+solucionado? ¿Qué estrategias has aplicado? ¿Cuáles fueron finalmente los beneficios
+de las acciones llevadas a cabo sobre ese conjunto de datos?
+    </div>
+
+    <p>
+      Sí, en los dos contextos profesionales en los que he trabajado con datos
+      a escala. Comparto el caso más interesante y luego un complemento más breve.
+    </p>
+
+    <h3>Caso principal: reconstrucción de entidades en Shift Technology</h3>
+
+    <h4>Contexto</h4>
+    <p>
+      Shift trabaja con datos de aseguradoras de varios países (en el equipo en el
+      que estuve, cuatro aseguradoras de motor en LATAM y una de viajes a nivel europeo). 
+      Una de las dificultades recurrentes era que <em>una misma persona física aparecía como entidades
+      distintas en los datos</em>: distintas pólizas, distintas escrituras del
+      nombre, errores de transcripción, falta de DNI en algunos casos, o miembros
+      de la misma familia compartiendo domicilio. Sin resolver esto, el análisis
+      posterior (especialmente la detección de fraude) pierde mucho
+      valor: dos pólizas que parecen independientes pueden ser de la misma persona,
+      y la red de relaciones queda invisibilizada.
+    </p>
+
+    <h4>Diagnóstico</h4>
+    <p>
+      El problema no era tanto "datos sucios" en sentido clásico (campos mal tipados o
+      nulos), sino un problema clásico de <em>entity resolution</em>: 
+      cómo decidir cuándo dos registros que no son idénticos
+      representan a la misma entidad real.
+    </p>
+
+    <h4>Estrategia</h4>
+    <p>El equipo aplicaba un enfoque combinado:</p>
+    <ul>
+      <li>
+        <strong>Reglas determinísticas</strong> sobre combinaciones de campos: mismo
+        domicilio + mismo primer nombre, mismo domicilio + mismo teléfono, etc.
+      </li>
+      <li>
+        <strong>Comparación fonética del nombre</strong> mediante una librería de C#
+        desarrollada internamente. Esto resolvía el caso de variantes ortográficas y
+        errores de transcripción (<em>María / Maria</em>,
+        <em>González / Gonzales...</em>) que un <em>string match</em> exacto
+        no captura.
+      </li>
+      <li>
+        <strong>Revisión manual</strong> en casos dudosos cuando la confianza no
+        era suficiente para fusionar automáticamente.
+      </li>
+    </ul>
+    <p>
+      El punto principal es la <strong>asimetría de los errores</strong>: un falso
+      positivo (fusionar dos personas distintas en una sola) suele ser peor que un
+      falso negativo (no detectar un duplicado), porque corromper datos consolidados
+      es difícil de revertir.
+    </p>
+
+    <h4>Beneficios</h4>
+    <p>
+      Una visión unificada del cliente que permite construir el grafo real de
+      relaciones entre pólizas, siniestros y personas, base sobre la que
+      después se construyen los escenarios de detección de fraude.
+    </p>
+    <p>
+      Considero que este problema es directamente trasladable a la línea de negocio de IVIRMA: 
+      un grupo internacional con clínicas en varios países y con pacientes que pueden aparecer en sistemas distintos
+      tras una integración (Pregunta 1) tiene exactamente el mismo reto. La diferencia
+      es que en sanidad la asimetría es aún más fuerte: un falso positivo significaría
+      mezclar historiales clínicos de dos personas distintas. El criterio de umbral
+      conservador y revisión humana se aplica con más razón.
+    </p>
+
+    <hr class="case-divider">
+
+    <h3>Caso secundario: parsing de direcciones libres en NTT Data</h3>
+    <p>
+      En el proyecto con WIPO (agencia de la ONU encargada de la propiedad intelectual) 
+      trabajamos con direcciones de clientes introducidas
+      como <strong>texto libre</strong>. Para obtener distribución geográfica de
+      clientes en EE. UU. necesitábamos extraer el estado, pero cada registro venía
+      con un formato distinto.
+    </p>
+    <p>La solución combinaba varias técnicas:</p>
+    <ul>
+      <li>
+        <strong>Regex</strong> para detectar códigos postales, con cuidado: en zonas
+        como Los Ángeles algunos números de portal tienen el mismo número de cifras
+        que un ZIP, así que el patrón por sí solo no era suficiente.
+      </li>
+      <li>
+        <strong>Librerías de Python</strong> para detección de ciudades estadounidenses sobre el texto.
+      </li>
+      <li>
+        <strong>Búsqueda directa de estados</strong> (nombre completo o abreviatura),
+        pero validando contra el ZIP detectado, porque hay ciudades que comparten
+        nombre con estados de otros estados.
+      </li>
+    </ul>
+
+    <h4>Lección general</h4>
+    <p>
+      Cuando los datos vienen como texto libre, <strong>ninguna heurística aislada
+      funciona</strong>: lo que funciona es combinar varias señales y usar unas para
+      validar otras.
+    </p>
+  </section>
+
+
+  <!-- ====================================================================
+       PREGUNTA 3
+       ==================================================================== -->
+  <section class="pregunta" id="p3">
+    <div class="pregunta-num">Pregunta 03</div>
+    <h2>Sentencia SQL multi-tabla</h2>
+
+    <div class="pregunta-prompt">
+      Escribe una sentencia de SQL con 3-4 tablas implicadas y explica cómo las unes. El
+principal objetivo más que la sintaxis es que puedas explicar qué quieres obtener y
+cómo tratas de obtenerlo, cómo cruzas varias tablas de datos y qué problemas puedes
+encontrar al hacerlo o qué debes tener en cuenta. Explica primero el modelo de datos
+ficticio que tendrías para poder después hacer la consulta o query.
+    </div>
+
+    <h3>Modelo de datos ficticio</h3>
+    <p>
+      Diseño un esquema en estrella simple, orientado al tipo de reporting que se
+      haría sobre la actividad asistencial de un grupo como IVIRMA. Cuatro tablas:
+      tres dimensiones y una de hechos.
+    </p>
+
+    <h4><code>dim_paciente</code></h4>
+    <ul>
+      <li><code>id_paciente</code> (PK)</li>
+      <li><code>nombre_completo</code></li>
+      <li><code>edad</code></li>
+      <li><code>nacionalidad</code></li>
+      <li><code>fecha_alta</code></li>
+    </ul>
+
+    <h4><code>dim_clinica</code></h4>
+    <ul>
+      <li><code>id_clinica</code> (PK)</li>
+      <li><code>nombre</code></li>
+      <li><code>pais</code></li>
+      <li><code>ciudad</code></li>
+    </ul>
+
+    <h4><code>dim_tratamiento</code></h4>
+    <ul>
+      <li><code>id_tratamiento</code> (PK)</li>
+      <li><code>tipo</code></li>
+      <li><code>descripcion</code></li>
+    </ul>
+
+    <h4><code>fact_tratamiento_realizado</code></h4>
+    <ul>
+      <li><code>id_registro</code> (PK)</li>
+      <li><code>id_paciente</code> (FK)</li>
+      <li><code>id_clinica</code> (FK)</li>
+      <li><code>id_tratamiento</code> (FK)</li>
+      <li><code>fecha_inicio</code></li>
+      <li><code>fecha_fin</code></li>
+      <li><code>resultado</code> <em>(exitoso, no_exitoso, cancelado)</em></li>
+      <li><code>coste</code></li>
+    </ul>
+
+    <p>
+      La granularidad de la tabla de hechos es <strong>un tratamiento completo
+      realizado</strong>. En la realidad existen subdivisiones más finas (ciclos,
+      intentos), que se modelarían con tablas adicionales según las necesidades de
+      reporting; para el ejemplo simplifico a tratamiento como unidad.
+    </p>
+
+    <!-- PLACEHOLDER PARA DIAGRAMA DE DRAW.IO -->
+    <div class="diagram-placeholder" style="border: none; padding: 0;">
+     <img src="diagrama.png" alt="Modelo de datos en estrella">
+   </div>
+
+    <h3>Pregunta de negocio</h3>
+    <div class="pregunta-prompt" style="font-size: 0.95rem;">
+      ¿Cuál es la tasa de éxito por tipo de tratamiento y país de la clínica en
+      los últimos 12 meses, considerando solo combinaciones con muestra suficiente
+      para que la métrica sea fiable?
+    </div>
+    <p>
+      He escogido esta pregunta ya que me parece plausible en el rol de Data Business Analyst (agrega actividad
+      asistencial, segmenta por dos dimensiones de negocio y filtra ruido
+      estadístico de combinaciones con poca muestra).
+    </p>
+
+    <h3>Query</h3>
+<pre><code class="language-sql">SELECT
+    t.tipo AS tipo_tratamiento,
+    c.pais AS pais_clinica,
+    COUNT(*) AS num_tratamientos,
+    SUM(CASE WHEN f.resultado = 'exitoso' THEN 1 ELSE 0 END) AS num_exitos,
+    ROUND(
+        SUM(CASE WHEN f.resultado = 'exitoso' THEN 1.0 ELSE 0 END) / COUNT(*),
+        3
+    ) AS tasa_exito
+FROM fact_tratamiento_realizado f
+INNER JOIN dim_tratamiento t ON f.id_tratamiento = t.id_tratamiento
+INNER JOIN dim_clinica c ON f.id_clinica = c.id_clinica
+WHERE f.fecha_inicio &gt;= DATEADD(month, -12, CURRENT_DATE)
+  AND f.resultado IN ('exitoso', 'no_exitoso')   -- excluyo cancelados del denominador
+GROUP BY t.tipo, c.pais
+HAVING COUNT(*) &gt;= 30
+ORDER BY tipo_tratamiento, tasa_exito DESC;</code></pre>
+
+    <h3>Explicación de los joins y decisiones</h3>
+
+    <p>
+      <strong>Por qué <code>INNER JOIN</code> y no <code>LEFT JOIN</code>:</strong>
+      Aquí me interesa solo la actividad realmente registrada y completamente
+      identificada, ya que un tratamiento sin clínica o sin tipo asociado es un
+      dato corrupto, no un caso a contabilizar. Si la pregunta fuese
+      <em>"lista todas las clínicas, incluso las que no han hecho tratamientos"</em>,
+      entonces partiría desde <code>dim_clinica</code> con un <code>LEFT JOIN</code>.
+    </p>
+
+    <p>
+      <strong>Filtro de fecha en <code>WHERE</code>, filtro de muestra en
+      <code>HAVING</code>:</strong> Es una distinción clásica que no siempre se
+      entiende: el <code>WHERE</code> filtra filas individuales <strong>antes</strong>
+      de agrupar; el <code>HAVING</code> filtra grupos <strong>después</strong> de
+      agrupar. La condición <em>"al menos 30 tratamientos por combinación"</em>
+      solo puede expresarse después de la agregación, por eso va en
+      <code>HAVING</code>.
+
+    <p>
+      <strong>Cálculo de la métrica:</strong> Uso <code>CASE WHEN</code> dentro
+      de un <code>SUM</code> porque es la forma estándar y multiplico por <code>1.0</code> para forzar división decimal y no entera
+      (en algunos motores <code>1/2 = 0</code>). Excluyo los tratamientos
+      <code>cancelado</code> del denominador porque, conceptualmente, una cancelación
+      no es un fallo del tratamiento (esta es una decisión de negocio que habría que validar con el
+      equipo médico y de marketing).
+    </p>
+
+    <h3>Problemas a tener en cuenta al cruzar tablas</h3>
+    <ul>
+      <li>
+        <strong>Granularidad.</strong> Si por error una dimensión tiene duplicados
+        (p. ej. dos filas con el mismo <code>id_clinica</code> por una mala carga),
+        el <code>INNER JOIN</code> multiplica filas en la fact y todas las métricas
+        quedan infladas. Esto se previene con tests de calidad sobre las claves
+        primarias de las dimensiones.
+      </li>
+      <li>
+        <strong>Nulos en claves foráneas.</strong> Si <code>id_clinica</code> o
+        <code>id_tratamiento</code> pueden ser nulos en la fact, esos registros
+        desaparecen silenciosamente con un <code>INNER JOIN</code>. Conviene saber
+        si eso está ocurriendo &mdash;típicamente con un conteo previo&mdash; y
+        decidir conscientemente si se aceptan o se tratan.
+      </li>
+    </ul>
+
+    <h3>Conclusión</h3>
+    <p>
+      La sintaxis aquí es lo de menos. Lo que me parece importante en una query
+      así es: tener clara la <strong>pregunta de negocio</strong>, conocer la
+      <strong>granularidad</strong> real de las tablas, ser consciente de qué
+      <strong>se filtra y dónde</strong> y entender qué <strong>se asume implícitamente</strong> al elegir un tipo
+      de join.
+    </p>
+  </section>
+
+
+  <!-- ====================================================================
+       PREGUNTA 4
+       ==================================================================== -->
+  <section class="pregunta" id="p4">
+    <div class="pregunta-num">Pregunta 04</div>
+    <h2>Visualización de datos</h2>
+
+    <div class="pregunta-prompt">
+      Muestra una visualización de datos que hayas utilizado, modificado o hecho
+      desde cero y explica qué datos contiene, por qué la visualización te ayuda
+      a comprender los datos mejor, qué conclusiones aporta y cómo crees que
+      podría mejorarse en un futuro.
+    </div>
+
+    <p>
+      Por NDAs no puedo mostrar visualizaciones de mis proyectos laborales,
+      así que comparto un trabajo de la asignatura <strong>Visualización Avanzada
+      de Datos</strong> del Máster en Ciencia de Datos de la Universitat de València.
+      Lo realicé individualmente y combina varias técnicas que considero relevantes
+      para el rol: reducción de dimensionalidad, dashboard interactivo y vistas
+      coordinadas.
+    </p>
+
+    <h3>Contexto del proyecto</h3>
+    <p>
+      El dataset fue provisto por la universidad y contiene la caracterización morfológica del miocardio de
+      <strong>51 pacientes</strong> post-infarto: masa total del ventrículo
+      izquierdo (LV&nbsp;MASS), masa y porcentaje de tejido cicatricial (CORE,
+      zona borderline BZ y "channels" de conducción), fracción de eyección
+      (LVEF), edad, sexo y la variable objetivo binaria AV (presencia / ausencia
+      de arritmia ventricular). El objetivo del análisis es explorar si la
+      morfología del tejido cicatricial se relaciona con el desarrollo posterior
+      de arritmias.
+    </p>
+
+    <h3>Qué construí</h3>
+    <p>Un <strong>dashboard en Dash + Plotly</strong> con tres vistas conectadas:</p>
+
+    <p>
+      <strong>1. Proyección t-SNE 2D de la población.</strong> Aplico t-SNE (reducción de dimensionalidad) a las
+      variables continuas para reducir 9 dimensiones a 2 y poder visualizar los datos en un diagrama de dispersión. Un dropdown permite recolorear los puntos según AV,
+      edad o sexo, lo que ayuda a identificar visualmente si alguna de estas
+      variables forma estructura en el espacio reducido.
+    </p>
+
+    <p>
+      <strong>2. Tabla de detalle del paciente.</strong> Al pasar el cursor sobre
+      un punto en el diagrama, la tabla muestra todos los valores del paciente
+      correspondiente. La columna de la variable elegida en el dropdown se resalta
+      con el mismo color que en el scatter, para mantener la coherencia visual
+      entre vistas.
+    </p>
+
+    <p>
+      <strong>3. Histogramas de la distribución poblacional.</strong> Para cada
+      variable continua se muestra su histograma sobre los 51 pacientes. Cuando
+      hay un paciente seleccionado, <strong>el contenedor al que pertenece se
+      colorea siguiendo una escala tipo semáforo</strong> (verde para valores bajos,
+      amarillo para intermedios, rojo oscuro para altos). Esto permite leer de un
+      vistazo "este paciente presenta valores altos sobre el resto" sin tener que mirar
+      la leyenda ni hacer cálculos mentales.
+    </p>
+
+    <h3>Capturas</h3>
+
+    <figure class="capture">
+      <img src="cap1.png" alt="t-SNE coloreado por arritmia">
+      <figcaption>
+        <strong>Captura 01</strong>
+        Proyección t-SNE coloreada por la variable AV. Al hacer hover sobre un
+        paciente (P51), se actualiza la tabla inferior con sus valores y se
+        resalta la columna AV con el mismo código de color.
+      </figcaption>
+    </figure>
+
+    <figure class="capture">
+      <img src="cap2.png" alt="t-SNE coloreado por edad">
+      <figcaption>
+        <strong>Captura 02</strong>
+        Misma visualización con la edad como variable de color. Permite explorar si los pacientes mayores tienden a agruparse
+        en zonas concretas del espacio reducido.
+      </figcaption>
+    </figure>
+
+    <figure class="capture">
+      <img src="cap3.png" alt="Histogramas con bin del paciente coloreado">
+      <figcaption>
+        <strong>Captura 03</strong>
+        Cuatro de los nueve histogramas de variables continuas. El bin al que
+        pertenece el paciente seleccionado se colorea según una escala semafórica;
+        en este caso, el paciente tiene LV&nbsp;MASS alto (rojo) pero CHANNEL&nbsp;MASS
+        y BZ+CORE en valores bajos-intermedios.
+      </figcaption>
+    </figure>
+
+    <h3>Por qué considero que esta visualización es acertada</h3>
+    <p>Las decisiones de diseño que considero más relevantes son tres:</p>
+
+    <p>
+      <strong>Por qué un dashboard interactivo y no un informe estático.</strong>
+      Con 51 pacientes y 9+ variables, ningún resumen agregado responde a la
+      pregunta del clínico, que es individual: <em>"este paciente concreto, ¿dónde
+      está respecto al resto?"</em>. La interactividad permite pasar de la visión
+      poblacional (t-SNE) a la individual (tabla + bin destacado) sin cambiar
+      de vista.
+    </p>
+
+    <p>
+      <strong>Coherencia visual entre vistas vinculadas.</strong> Los tres
+      componentes están coordinados: una sola acción (hover) actualiza
+      simultáneamente la tabla y los histogramas. Mantener el mismo código de color
+      entre el scatter y la columna resaltada de la tabla evita carga cognitiva; el ojo no tiene que reorientarse cada vez que cambia de vista.
+    </p>
+
+    <p>
+      <strong>Codificación semafórica en los histogramas.</strong> Es una elección
+      deliberada para acelerar la lectura: en un contexto clínico, la pregunta
+      operativa es "¿este paciente está en zona normal o en cola peligrosa?".
+      Un color semafórico responde a eso sin necesidad de leyenda.
+    </p>
+
+    <h3>Conclusiones que aporta</h3>
+    <p>
+      El uso del dashboard sobre el dataset permite observar que <strong>la
+      separación visual de pacientes con y sin arritmia en el espacio t-SNE
+      es, en este caso, modesta</strong>: hay zonas con concentración relativa de casos AV=1,
+      pero no clusters bien definidos. La interpretación honesta es que las
+      variables morfológicas usadas, por sí solas, no separan completamente ambas
+      clases, lo cual es coherente con la dificultad real del problema
+      clínico (la arritmia post-infarto depende de factores que van más allá de
+      la morfología del tejido). Una observación visual de este tipo, no obstante,
+      <strong>no demuestra ausencia de separabilidad</strong>: contrastarla con
+      un modelo supervisado simple sería el paso natural
+      siguiente con más tiempo o más datos.
+    </p>
+    <p>
+      A nivel individual, el dashboard cumple su función: permite caracterizar
+      rápidamente dónde se sitúa un paciente concreto respecto a la población y
+      qué marcadores tiene en cola alta.
+    </p>
+
+    <h3>Conexión con el rol</h3>
+    <p>
+      El patrón que aplico aquí (tomar un dataset clínico, reducir su
+      dimensionalidad para exploración visual, construir un dashboard interactivo
+      con vistas coordinadas y permitir tanto lectura poblacional como
+      individual) es directamente trasladable al tipo de herramientas que
+      se construyen con <strong>PowerBI</strong> sobre datos clínicos en un grupo
+      como IVIRMA. En este caso concreto, la diferencia técnica (Dash frente a PowerBI) es de herramienta;
+      las decisiones de diseño y storytelling son las mismas.
+    </p>
+
+    <h3>Adjunto el código de Python usado para crear el dashboard:</h3>
+
+    <a href="Tarea_Dash.py" class="download-link" download>
+      Tarea_Dash.py &nbsp;·&nbsp; código fuente
+    </a>
+  </section>
+
+</main>
+
+</div><!-- /.layout -->
+
+<!-- Prism.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+<!-- Sidebar nav active state on scroll -->
+<script>
+  const sections = document.querySelectorAll('section.pregunta');
+  const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
